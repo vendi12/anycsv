@@ -11,14 +11,8 @@ import subprocess
 #import chardet
 #from chardet.universaldetector import UniversalDetector
 
-try:
-    import magic
-except ImportError:
-    magic = None
-else:
-    if not hasattr(magic, 'detect_from_content'):
-        # This is not the file-magic library
-        magic = None
+# the file-magic library
+import magic
 
 #from chardet.chardetect import UniversalDetector
 #import bs4

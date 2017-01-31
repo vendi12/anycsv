@@ -84,7 +84,7 @@ def guessEncoding(content, header=None):
 def guessWithMagic(content):
     result = magic.detect_from_content(content)
     # port to Python 3
-    return result._asdict
+    return result.__dict__
 
 
 # #worth to look into

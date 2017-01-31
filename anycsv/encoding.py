@@ -10,7 +10,15 @@ __author__ = 'jumbrich'
 import subprocess
 #import chardet
 #from chardet.universaldetector import UniversalDetector
-import magic
+
+try:
+    import magic
+except ImportError:
+    magic = None
+else:
+    if not hasattr(magic, 'detect_from_content'):
+        # This is not the file-magic library
+        magic = None
 
 #from chardet.chardetect import UniversalDetector
 #import bs4
@@ -81,7 +89,8 @@ def guessEncoding(content, header=None):
 
 def guessWithMagic(content):
     result = magic.detect_from_content(content)
-    return result.__dict__
+    # port to Python 3
+    return result._asdict
 
 
 # #worth to look into

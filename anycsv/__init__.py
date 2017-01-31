@@ -1,1 +1,1 @@
-from csv_parser import reader
+from anycsv.csv_parser import reader

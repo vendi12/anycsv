@@ -1,15 +1,20 @@
 import csv
 import os
 import logging
-import StringIO
 import requests
+import gzip
 
-import dialect
+# python 3 compatible
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
+import anycsv.dialect
+import anycsv.exceptions
 from anycsv.csv_model import Table
 from anycsv import io
-import exceptions
-import gzip
+
 
 DEFAULT_ENCODING='utf-8'
 ENC_PRIORITY=['magic', 'lib_chardet', 'header', 'default']
@@ -78,7 +83,7 @@ def sniff_metadata(fName= None, url=None, content=None, header=None, sniffLines=
     id = url if url is not None else fName
 
     if not any([fName,url]) and not any([content, header]):
-        # we need at least one of the three, so return empty results
+        #we need at least one of the three, so return empty results
         return {}
 
     if not any([content, header]) and any([fName, url]):
@@ -102,21 +107,21 @@ def extract_csv_meta(header, content=None, id='', skip_guess_encoding=False):
     # check if guess encoding is possible
     if not skip_guess_encoding:
         try:
-            import encoding
+            import anycsv.encoding
         except:
-            print 'Could not import "magic" library. To support encoding detection please install python-magic.'
+            print('Could not import "magic" library. To support encoding detection please install file-magic.')
             skip_guess_encoding = True
 
     # get encoding
     if skip_guess_encoding:
         results['used_enc'] = DEFAULT_ENCODING
-        content_encoded = content.decode(encoding=results['used_enc'])
-        status = "META encoding"
+        content_encoded = content.decode(encoding = results['used_enc'])
+        status="META encoding"
     else:
-        results['enc'] = encoding.guessEncoding(content, header)
+        results['enc'] = anycsv.encoding.guessEncoding(content, header)
 
         content_encoded = None
-        status = "META "
+        status="META "
         c_enc = None
         for k in ENC_PRIORITY:
             #we try to use the different encodings

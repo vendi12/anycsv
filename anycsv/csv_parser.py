@@ -46,7 +46,7 @@ def reader(filename=None, url=None, content=None, skip_guess_encoding=False, del
     elif 'delimiter' in table.dialect:
         table.delimiter = table.dialect['delimiter']
     else:
-        raise exceptions.NoDelimiterException('No delimiter detected')
+        raise anycsv.exceptions.NoDelimiterException('No delimiter detected')
 
     if 'quotechar' in table.dialect:
         table.quotechar = table.dialect['quotechar']
@@ -124,7 +124,7 @@ def extract_csv_meta(header, content=None, id='', skip_guess_encoding=False):
         status="META "
         c_enc = None
         for k in ENC_PRIORITY:
-            #we try to use the different encodings
+            # we try to use the different encodings
             try:
                 if k in results['enc'] and results['enc'][k]['encoding'] is not None:
                     content_encoded = content.decode(encoding=results['enc'][k]['encoding'])
@@ -132,7 +132,7 @@ def extract_csv_meta(header, content=None, id='', skip_guess_encoding=False):
                     status+=" encoding"
                     break
             except Exception as e:
-                logger.debug('(%s) ERROR Tried %s encoding: %s', results['enc'][k]['encoding'],id, e)
+                logger.debug('(%s) ERROR Tried %s encoding: %s', k, id, e)
         if content_encoded:
             results['used_enc'] = c_enc
 
@@ -141,7 +141,7 @@ def extract_csv_meta(header, content=None, id='', skip_guess_encoding=False):
         results['dialect'] = dialect.guessDialect(content_encoded)
         status+=" dialect"
     except Exception as e:
-        logger.warning('(%s)  %s',id, e.message)
+        logger.warning('(%s)  %s', id, str(e))
         results['dialect']={}
 
     #if fName:

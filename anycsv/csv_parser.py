@@ -115,8 +115,12 @@ def extract_csv_meta(header, content=None, id='', skip_guess_encoding=False):
     # get encoding
     if skip_guess_encoding:
         results['used_enc'] = DEFAULT_ENCODING
-        content_encoded = content.decode(encoding = results['used_enc'])
-        status="META encoding"
+        try:
+            content_encoded = content.decode(encoding=results['used_enc'])
+        except:
+            content_encoded = content
+        status = "META encoding"
+
     else:
         results['enc'] = anycsv.encoding.guessEncoding(content, header)
 
@@ -126,23 +130,28 @@ def extract_csv_meta(header, content=None, id='', skip_guess_encoding=False):
         for k in ENC_PRIORITY:
             # we try to use the different encodings
             try:
-                if k in results['enc'] and results['enc'][k]['encoding'] is not None:
-                    content_encoded = content.decode(encoding=results['enc'][k]['encoding'])
+                if k in results['enc']:
                     c_enc = results['enc'][k]['encoding']
-                    status+=" encoding"
-                    break
+                    if c_enc is not None:
+                        logger.info(' (%s) encoding detected', c_enc)
+                        try:
+                            content_encoded = content.decode(encoding=c_enc)
+                        except:
+                            content_encoded = content
+                        status += " encoding"
+                        break
             except Exception as e:
-                logger.debug('(%s) ERROR Tried %s encoding: %s', k, id, e)
+                logger.debug('(%s) ERROR Tried %s encoding: %s', k, id, c_enc)
         if content_encoded:
             results['used_enc'] = c_enc
 
     # get dialect
     try:
-        results['dialect'] = dialect.guessDialect(content_encoded)
-        status+=" dialect"
+        results['dialect'] = anycsv.dialect.guessDialect(content_encoded)
+        status += " dialect"
     except Exception as e:
-        logger.warning('(%s)  %s', id, str(e))
-        results['dialect']={}
+        logger.warning(str(e))
+        results['dialect'] = {}
 
     #if fName:
     #    results['charset'] = encoding.get_charset(fName)
@@ -223,15 +232,15 @@ class EncodedCsvReader(CsvReader):
 
 
 class UnicodeReader(CsvReader):
-    def __init__(self, f, delimiter="\t", quotechar="'", encoding='utf-8', errors='strict', **kwds):
+    def __init__(self, f, delimiter="\t", quotechar="'", encoding='utf-8', errors='ignore', **kwds):
         if not quotechar:
             quotechar = "'"
         if not encoding:
             encoding = 'utf-8'
         if not delimiter:
-            reader = csv.reader(f, quotechar=quotechar.encode('ascii'), **kwds)
+            reader = csv.reader(f, quotechar=quotechar, **kwds)
         else:
-            reader = csv.reader(f, delimiter=delimiter.encode('ascii'), quotechar=quotechar.encode('ascii'),
+            reader = csv.reader(f, delimiter=delimiter, quotechar=quotechar,
                                      **kwds)
         self.encoding_errors = errors
         CsvReader.__init__(self, f, reader, encoding)
@@ -243,4 +252,4 @@ class UnicodeReader(CsvReader):
         float_ = float
         unicode_ = unicode
         return [(value if isinstance(value, float_) else
-                 unicode_(value, encoding, encoding_errors)) for value in row]
+                unicode_(value, encoding, encoding_errors)) for value in row]

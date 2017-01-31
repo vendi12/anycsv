@@ -78,7 +78,7 @@ def sniff_metadata(fName= None, url=None, content=None, header=None, sniffLines=
     id = url if url is not None else fName
 
     if not any([fName,url]) and not any([content, header]):
-        #we need at least one of the three, so return empty results
+        # we need at least one of the three, so return empty results
         return {}
 
     if not any([content, header]) and any([fName, url]):
@@ -111,12 +111,12 @@ def extract_csv_meta(header, content=None, id='', skip_guess_encoding=False):
     if skip_guess_encoding:
         results['used_enc'] = DEFAULT_ENCODING
         content_encoded = content.decode(encoding=results['used_enc'])
-        status="META encoding"
+        status = "META encoding"
     else:
         results['enc'] = encoding.guessEncoding(content, header)
 
         content_encoded = None
-        status="META "
+        status = "META "
         c_enc = None
         for k in ENC_PRIORITY:
             #we try to use the different encodings

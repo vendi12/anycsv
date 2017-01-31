@@ -61,7 +61,7 @@ def getContentAndHeader(fName=None, url=None, download_dir=None, max_lines=None)
 
     if fName:
         if os.path.exists(fName):
-            #process local file
+            # process local file
             content = getContentFromDisk(fName, max_lines=max_lines)
             logger.debug("(%s) got content from disk %s", id, fName)
         else:

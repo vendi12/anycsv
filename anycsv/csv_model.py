@@ -1,7 +1,7 @@
 class Table():
     def __init__(self, filename=None, url=None):
         self.filename = filename
-        self.url=url
+        self.url = url
         self.csvReader = None
         self.delimiter = None
         self.quotechar = '"'
@@ -14,6 +14,8 @@ class Table():
 
     def next(self):
         return self.csvReader.next()
+
+    __next__ = next  # Python 3.X compatibility
 
     def seek_line(self, line_number):
         self.csvReader.seek_line(line_number)
